@@ -1,4 +1,4 @@
-module hcflabs/links
+module github.com/hcflabs/links
 
 go 1.21.3
 

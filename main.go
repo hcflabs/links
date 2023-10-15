@@ -2,58 +2,47 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
-
-	// c "./lib/config"
-	// "github.com/spf13/viper"
-	// "database/sql"
-	// _ "github.com/lib/pq"
-	// "github.com/golang-migrate/migrate/v4"
-	// "github.com/golang-migrate/migrate/v4/database/postgres"
-	// _ "github.com/golang-migrate/migrate/v4/source/file"
+	// "net/http"
 	"github.com/gin-gonic/contrib/static"
+	"github.com/gin-gonic/gin"
+	"github.com/hcflabs/links/lib/controllers"
+	"github.com/hcflabs/links/lib/models"
+	"github.com/hcflabs/links/lib/storage"
+	"github.com/hcflabs/links/lib/util"
 )
 
-type DatabaseConfig struct {
-	host     string
-	user     string
-	password string
-}
-
 type ServerConfig struct {
-	port     string
-	dbConfig DatabaseConfig
+	port string
 }
 
-func load_config() (cfg ServerConfig) {
-	if os.Getenv("LINKS_BACKEND") == "postgres" {
-	
-	}
-	var db_config DatabaseConfig
-
-	switch backend := os.Getenv("LINKS_BACKEND"); backend {
-	case "postgres" :
-	
-		db_config = DatabaseConfig{
-			host:     os.Getenv("LINKS_DB_HOST"),
-			user:     os.Getenv("LINKS_DB_USER"),
-			password: os.Getenv("LINKS_DB_PASSWORD"),
+func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
+	switch backend_option := os.Getenv("LINKS_BACKEND"); backend_option {
+	case "postgres":
+		fmt.Printf("Postgres Backend loading")
+		backend = storage.PostgresLinksBackend{
+			Host:     os.Getenv("LINKS_DB_HOST"),
+			User:     os.Getenv("LINKS_DB_USER"),
+			Password: os.Getenv("LINKS_DB_PASSWORD"),
 		}
-		fmt.Println("postgres config: %s@%s", db_config.user, db_config.host)
 	default:
-		// freebsd, openbsd,
-		// plan9, windows...
-		fmt.Printf("%s.\n", backend)
+		fmt.Printf("InMemory Backend loading")
+		backend = storage.InMemoryLinksBackend{
+			LinkMap: make(map[string]models.Link),
+		}
 	}
 
 	cfg = ServerConfig{
-		port:     os.Getenv("LINKS_PORT"),
-		dbConfig: db_config,
+		port: os.Getenv("LINKS_PORT"),
 	}
 	return
+}
+
+func initLinks(backend storage.LinksBackend) {
+	util.InsertLink(backend, "holdon", "https://www.youtube.com/watch?v=HKK4KmDlj8U")
+	util.InsertLink(backend, "great", "https://www.youtube.com/watch?v=kSVQtlQtxCs")
+	util.InsertLink(backend, "hcf", "https://haltcatchfire.io")
 }
 
 func main() {
@@ -66,20 +55,27 @@ func main() {
 	//     "postgres", driver)
 	// m.Up() // or m.Step(2) if you want to explicitly set the number of migrations to run
 
-	cfg := load_config()
+	cfg, backend := loadConfig()
+	fmt.Printf("Loaded Config \n%+v\n", cfg)
 
-	fmt.Printf("Loaded Config:")
-	fmt.Printf("%+v\n", cfg)
+	fmt.Printf("Loading Test Links")
+	initLinks(backend)
 
 	// Set up Server
 	router := gin.Default()
 
+	// Init
+	api := controllers.ApiController{Backend: backend}
+	// Primary Route
+	router.GET("/:shortUrl", api.GetRedirect)
 	// Serve frontend static files
 	router.Use(static.Serve("/admin", static.LocalFile("./client/build", true)))
-
-	router.GET("/holdon", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "https://www.youtube.com/watch?v=HKK4KmDlj8U")
-	})
+	// Admin API
+	router.GET("/api/links/:shortUrl", api.GetLinkMetadata)
+	router.POST("/api/links/:shortUrl", api.CreateOrUpdateLink)
+	router.DELETE("/api/links/:shortUrl", api.DeleteLink)
+	router.GET("/api/links", api.GetLinksPaginated)
+	router.GET("/api/owners/:owner/links", api.GetLinksPaginated)
 
 	router.Run(fmt.Sprintf(":%s", cfg.port))
 }

@@ -1,36 +1,52 @@
 package storage
 
 import (
-	"hcflabs/links/models"
+	"github.com/hcflabs/links/lib/models"
 )
 
 type InMemoryLinksBackend struct {
-	linkMap map[string]models.Link
+	LinkMap map[string]models.Link
 }
 
-func (r InMemoryLinksBackend) createOrUpdateLink(entry models.Link) {
-	r.linkMap[link.shortUrl] = entry
+func (r InMemoryLinksBackend) CreateOrUpdateLink(entry models.Link) {
+	r.LinkMap[entry.ShortUrl] = entry
 }
 
-func (r InMemoryLinksBackend) getTargetLink(url string) (target string, permanent bool) {
+func (r InMemoryLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
+	if val, ok := r.LinkMap[url]; ok {
+		return &val.TargetUrl, val.Permanent
+	}
 
-	return r.linkMap[url].TargetUrl, false
+	return nil, false
 }
 
-func (r InMemoryLinksBackend) getOwnersLinks(owner string) (links []models.Link) {
-	result := []models.Link{}
+func (r InMemoryLinksBackend) GetOwnersLinks(owner string) (links []models.Link) {
 
-	for _, v := range r.linkMap {
+	for _, v := range r.LinkMap {
 		if v.Owner == owner {
-			result = append(result, v)
+			links = append(links, v)
 		}
 	}
+	return
 }
 
-func (r InMemoryLinksBackend) getLinkMetadata(shortUrl string) (link models.Link) {
-	return r.linkMap[shortUrl]
+func (r InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *models.Link) {
+	if val, ok := r.LinkMap[shortUrl]; ok {
+		return &val
+	}
+	return nil
 }
 
-func (r InMemoryLinksBackend) deleteLink(shortUrl string) {
-	delete(r.linkMap, shortUrl)
+func (r InMemoryLinksBackend) DeleteLink(shortUrl string) {
+	delete(r.LinkMap, shortUrl)
+}
+
+// getAllLinksPaginated implements LinksBackend.
+func (InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize ...int) (links []models.Link) {
+	panic("unimplemented")
+}
+
+// getOwnersLinksPaginated implements LinksBackend.
+func (InMemoryLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize ...int) (links []models.Link) {
+	panic("unimplemented")
 }
