@@ -4,3 +4,9 @@ updates:
     directory: /
     schedule:
       interval: weekly
+      day: monday
+  - package-ecosystem: npm
+    directory: "links-admin/"
+    schedule:
+      interval: weekly
+      day: monday

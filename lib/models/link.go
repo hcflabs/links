@@ -10,8 +10,9 @@ type LinkRequest struct {
     TargetUrl  string  `json:"target_url"`
     Owner string  `json:"owner"`
     Description  string `json:"description"`
-
 }
+
+
 
 type Link struct {
     LinkOptions

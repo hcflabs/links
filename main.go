@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
 	// "net/http"
-	"github.com/gin-gonic/contrib/static"
+	// "github.com/gin-gonic/contrib/static"
+	// "github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/hcflabs/links/lib/controllers"
 	"github.com/hcflabs/links/lib/models"
@@ -14,7 +16,8 @@ import (
 )
 
 type ServerConfig struct {
-	port string
+	Port           string
+	AdminBuildPath string
 }
 
 func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
@@ -34,12 +37,14 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 	}
 
 	cfg = ServerConfig{
-		port: os.Getenv("LINKS_PORT"),
+		Port:           os.Getenv("LINKS_PORT"),
+		AdminBuildPath: os.Getenv("LINKS_ADMIN_PATH"),
 	}
 	return
 }
 
 func initLinks(backend storage.LinksBackend) {
+	// TODO Remove after Testing
 	util.InsertLink(backend, "holdon", "https://www.youtube.com/watch?v=HKK4KmDlj8U")
 	util.InsertLink(backend, "great", "https://www.youtube.com/watch?v=kSVQtlQtxCs")
 	util.InsertLink(backend, "hcf", "https://haltcatchfire.io")
@@ -66,10 +71,14 @@ func main() {
 
 	// Init
 	api := controllers.ApiController{Backend: backend}
+	// Serve frontend static files
+	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
+	router.Static("/admin", fmt.Sprintf("%s", cfg.AdminBuildPath))
+	router.GET("/admin", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
+	})
 	// Primary Route
 	router.GET("/:shortUrl", api.GetRedirect)
-	// Serve frontend static files
-	router.Use(static.Serve("/admin", static.LocalFile("./client/build", true)))
 	// Admin API
 	router.GET("/api/links/:shortUrl", api.GetLinkMetadata)
 	router.POST("/api/links/:shortUrl", api.CreateOrUpdateLink)
@@ -77,5 +86,5 @@ func main() {
 	router.GET("/api/links", api.GetLinksPaginated)
 	router.GET("/api/owners/:owner/links", api.GetLinksPaginated)
 
-	router.Run(fmt.Sprintf(":%s", cfg.port))
+	router.Run(fmt.Sprintf(":%s", cfg.Port))
 }
