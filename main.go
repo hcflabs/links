@@ -84,7 +84,7 @@ func main() {
 	router.POST("/api/links/:shortUrl", api.CreateOrUpdateLink)
 	router.DELETE("/api/links/:shortUrl", api.DeleteLink)
 	router.GET("/api/links", api.GetLinksPaginated)
-	router.GET("/api/owners/:owner/links", api.GetLinksPaginated)
+	router.GET("/api/owners/:owner/links", api.GetOwnerLinksPaginated)
 
 	router.Run(fmt.Sprintf(":%s", cfg.Port))
 }

@@ -4,14 +4,22 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
+	mapset "github.com/deckarep/golang-set/v2"
+
 )
 
 type ApiController struct {
 	Backend storage.LinksBackend
+}
+
+var FORBIDDEN_LINK_PREFIX_SET mapset.Set[string]
+
+func init() { 
+	FORBIDDEN_LINK_PREFIX_SET := mapset.NewSet[string]()
+	FORBIDDEN_LINK_PREFIX_SET.Add("admin")
 }
 
 func (controller ApiController) GetRedirect(c *gin.Context) {
@@ -32,7 +40,24 @@ func (controller ApiController) GetRedirect(c *gin.Context) {
 
 func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
 	// TODO Handle force updates, verify etc
-	controller.Backend.CreateOrUpdateLink(fromContext(c))
+	newlink := fromContext(c)
+
+
+	var found *string
+	it := FORBIDDEN_LINK_PREFIX_SET.Iterator()
+
+	for elem := range it.C {
+		if elem.name == "John" {
+			found = elem
+			it.Stop()
+		}
+	}
+	
+	if found == nil || found.name != "John" {
+		t.Fatalf("expected iterator to have found `John` record but got nil or something else")
+	}
+
+	controller.Backend.CreateOrUpdateLink(newlink)
 }
 
 func (controller ApiController) GetLinkMetadata(c *gin.Context) {
@@ -56,8 +81,29 @@ func (controller ApiController) GetLinksPaginated(c *gin.Context) {
 		pagesize = 10
 	}
 
-	offset, _ := strconv.Atoi(c.Query("offset"))
+	offset, err := strconv.Atoi(c.Query("offset"))
+	if err != nil {
+		// ... handle error
+		offset = 0
+	}
 	c.JSON(http.StatusOK, controller.Backend.GetAllLinksPaginated(offset, pagesize))
+}
+
+func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
+	pagesize, err := strconv.Atoi(c.Query("pagesize"))
+	if err != nil {
+		// ... handle error
+		pagesize = 10
+	}
+
+	offset, err := strconv.Atoi(c.Query("offset"))
+	if err != nil {
+		// ... handle error
+		offset = 0
+	}
+
+	owner := c.Param("owner")
+	c.JSON(http.StatusOK, controller.Backend.GetOwnersLinksPaginated(owner, offset, pagesize))
 }
 
 func verify() bool {

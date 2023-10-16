@@ -33,10 +33,10 @@ func (s PostgresLinksBackend) DeleteLink(shortUrl string) {
 
 }
 
-func (PostgresLinksBackend) GetAllLinksPaginated(offset int, pagesize ...int) (links []models.Link) {
+func (PostgresLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links []models.Link) {
 	panic("unimplemented")
 }
 
-func (PostgresLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize ...int) (links []models.Link) {
+func (PostgresLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links []models.Link) {
 	panic("unimplemented")
 }
