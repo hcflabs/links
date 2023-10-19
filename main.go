@@ -13,6 +13,7 @@ import (
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
 	"github.com/hcflabs/links/lib/util"
+	// "gorm.io/driver/postgres"
 )
 
 type ServerConfig struct {
@@ -24,11 +25,14 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 	switch backend_option := os.Getenv("LINKS_BACKEND"); backend_option {
 	case "postgres":
 		fmt.Printf("Postgres Backend loading")
-		backend = storage.PostgresLinksBackend{
+		config = storage.PostgresConfig{
 			Host:     os.Getenv("LINKS_DB_HOST"),
 			User:     os.Getenv("LINKS_DB_USER"),
 			Password: os.Getenv("LINKS_DB_PASSWORD"),
+			Database: os.Getenv("LINKS_DB_PASSWORD"),
+			Port: os.Getenv("LINKS_DB_PASSWORD"),
 		}
+		backend = storage{}
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{

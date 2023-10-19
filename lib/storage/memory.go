@@ -21,13 +21,7 @@ func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permane
 }
 
 func (s InMemoryLinksBackend) GetOwnersLinks(owner string) (links []models.Link) {
-
-	for _, v := range s.LinkMap {
-		if v.Owner == owner {
-			links = append(links, v)
-		}
-	}
-	return
+	panic("unimplemented")
 }
 
 func (s InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *models.Link) {
@@ -43,13 +37,7 @@ func (s InMemoryLinksBackend) DeleteLink(shortUrl string) {
 
 // getAllLinksPaginated implements LinksBackend.
 func (s InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links []models.Link) {
-	for _, v := range s.LinkMap {
-		links = append(links, v)
-	}
-
-	end := min(len(links), offset+pagesize)
-	return links[offset:end]
-
+	panic("unimplemented")
 }
 
 // getOwnersLinksPaginated implements LinksBackend.

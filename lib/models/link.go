@@ -1,25 +1,25 @@
 package models
 
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
 type LinkOptions struct {
 	Permanent bool `json:"permanent"`
 }
 
-type LinkRequest struct {
-	LinkOptions
-	ShortUrl    string `json:"short_url"`
-	TargetUrl   string `json:"target_url"`
-	Owner       string `json:"owner"`
-	Description string `json:"description"`
-}
+
 
 type Link struct {
+	gorm.Model
 	LinkOptions
-	ShortUrl          string `json:"short_url"`
-	TargetUrl         string `json:"target_url"`
-	Owner             string `json:"owner"`
-	Description       string `json:"description"`
-	CreationTimestamp int    `json:"created"`
-	ModifiedTimestamp int    `json:"modified"`
+	ShortUrl    string    `json:"short_url" gorm:"primaryKey" gorm:"index"`
+	TargetUrl   string    `json:"target_url"`
+	Owner       string    `json:"owner" gorm:"index"`
+	Description string    `json:"text"`
+	CreatedAt   time.Time `json:"created" time_format:"RFC3339"`
+	UpdatedAt   time.Time `json:"modified" time_format:"RFC3339"`
 }
 
 type Error struct {

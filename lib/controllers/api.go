@@ -43,16 +43,6 @@ func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
 	newlink := fromContext(c)
 
 
-	var found *string
-	it := FORBIDDEN_LINK_PREFIX_SET.Iterator()
-
-	for elem := range it.C {
-		if elem.name == "John" {
-			found = elem
-			it.Stop()
-		}
-	}
-	
 	if found == nil || found.name != "John" {
 		t.Fatalf("expected iterator to have found `John` record but got nil or something else")
 	}
