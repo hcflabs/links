@@ -9,8 +9,11 @@ import (
 
 // "github.com/hcflabs/lib/storage"
 
-func buildPostgresBackend(config storage.PostgresConfig) (backend storage.PostgresLinksBackend) {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", config.Host, config.Host, config.Password, config.Database, config.Port)
+func BuildPostgresBackend(config storage.PostgresConfig) (backend storage.PostgresLinksBackend) {
+	// fmt.Printf("%+v\n", config)
+	dsn := "host=localhost user=postgres password=postgres dbname=hcflinks port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", config.Host, config.User, config.Password, config.Database, config.Port)
 	databaseConn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")

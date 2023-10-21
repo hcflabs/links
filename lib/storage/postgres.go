@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/hcflabs/links/lib/models"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -22,8 +21,8 @@ type PostgresLinksBackend struct {
 	// Config PostgresConfig
 }
 
-func (s PostgresLinksBackend) migrateDb() {
-	s.DB.AutoMigrate(&models.Link{})
+func (s PostgresLinksBackend) Start() {
+	s.DB.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&models.Link{})
 }
 
 // CreateOrUpdateLink implements LinksBackend.
@@ -50,12 +49,18 @@ func (s PostgresLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (li
 
 // GetLinkMetadata implements LinksBackend.
 func (s PostgresLinksBackend) GetLinkMetadata(url string) (link *models.Link) {
-	panic("unimplemented")
+	s.DB.First(&link, "short_url", url)
+	if &link == nil {
+		return nil
+	}
+
+	return link
 }
 
 // GetOwnersLinks implements LinksBackend.
 func (s PostgresLinksBackend) GetOwnersLinks(owner string) (links []models.Link) {
 
+	panic("unimplemented")
 
 }
 
@@ -71,6 +76,6 @@ func (s PostgresLinksBackend) GetTargetLink(url string) (target *string, permane
 	if &link == nil {
 		return nil, false
 	}
-	
-	return &link.TargetUrl, link.Permanent
+
+	return &link.TargetUrl, link.LinkOptions.Permanent
 }

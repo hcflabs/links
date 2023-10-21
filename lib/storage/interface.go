@@ -5,6 +5,7 @@ import (
 )
 
 type LinksBackend interface {
+	Start()
 	CreateOrUpdateLink(link models.Link)
 	GetTargetLink(url string) (target *string, permanent bool)
 	GetOwnersLinks(owner string) (links []models.Link)

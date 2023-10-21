@@ -2,24 +2,17 @@ package controllers
 
 import (
 	"fmt"
-	"net/http"
-	"strconv"
 	"github.com/gin-gonic/gin"
+	"github.com/hcflabs/links/lib"
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
-	mapset "github.com/deckarep/golang-set/v2"
-
+	"log"
+	"net/http"
+	"strconv"
 )
 
 type ApiController struct {
 	Backend storage.LinksBackend
-}
-
-var FORBIDDEN_LINK_PREFIX_SET mapset.Set[string]
-
-func init() { 
-	FORBIDDEN_LINK_PREFIX_SET := mapset.NewSet[string]()
-	FORBIDDEN_LINK_PREFIX_SET.Add("admin")
 }
 
 func (controller ApiController) GetRedirect(c *gin.Context) {
@@ -42,12 +35,11 @@ func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
 	// TODO Handle force updates, verify etc
 	newlink := fromContext(c)
 
-
-	if found == nil || found.name != "John" {
-		t.Fatalf("expected iterator to have found `John` record but got nil or something else")
+	if lib.FORBIDDEN_LINKS.Has(newlink.ShortUrl) {
+		c.String(http.StatusConflict, fmt.Sprintf("%s is a protected route", newlink.ShortUrl))
+	} else {
+		controller.Backend.CreateOrUpdateLink(newlink)
 	}
-
-	controller.Backend.CreateOrUpdateLink(newlink)
 }
 
 func (controller ApiController) GetLinkMetadata(c *gin.Context) {
@@ -104,6 +96,13 @@ func fromContext(c *gin.Context) (link models.Link) {
 	if err := c.BindJSON(&link); err != nil {
 
 		// TODO Handle?
+		panic("bad bind!")
+	}
+
+	if c.ShouldBindJSON(&link) == nil {
+		log.Println(link.ShortUrl)
+	} else {
+		panic("bad bind!")
 	}
 	return
 }

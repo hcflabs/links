@@ -12,6 +12,7 @@ import (
 	"github.com/hcflabs/links/lib/controllers"
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
+	"github.com/hcflabs/links/lib/storage/helpers"
 	"github.com/hcflabs/links/lib/util"
 	// "gorm.io/driver/postgres"
 )
@@ -25,14 +26,15 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 	switch backend_option := os.Getenv("LINKS_BACKEND"); backend_option {
 	case "postgres":
 		fmt.Printf("Postgres Backend loading")
-		config = storage.PostgresConfig{
+		config := storage.PostgresConfig{
 			Host:     os.Getenv("LINKS_DB_HOST"),
 			User:     os.Getenv("LINKS_DB_USER"),
 			Password: os.Getenv("LINKS_DB_PASSWORD"),
-			Database: os.Getenv("LINKS_DB_PASSWORD"),
-			Port: os.Getenv("LINKS_DB_PASSWORD"),
+			Database: os.Getenv("LINKS_DB_DATABASE"),
+			Port:     os.Getenv("LINKS_DB_PORT"),
 		}
-		backend = storage{}
+
+		backend = helpers.BuildPostgresBackend(config)
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{
@@ -48,6 +50,7 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 }
 
 func initLinks(backend storage.LinksBackend) {
+	backend.Start()
 	// TODO Remove after Testing
 	util.InsertLink(backend, "holdon", "https://www.youtube.com/watch?v=HKK4KmDlj8U")
 	util.InsertLink(backend, "great", "https://www.youtube.com/watch?v=kSVQtlQtxCs")
@@ -81,14 +84,18 @@ func main() {
 	router.GET("/admin", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
 	})
-	// Primary Route
+	// Primary User Route
 	router.GET("/:shortUrl", api.GetRedirect)
+
 	// Admin API
-	router.GET("/api/links/:shortUrl", api.GetLinkMetadata)
-	router.POST("/api/links/:shortUrl", api.CreateOrUpdateLink)
-	router.DELETE("/api/links/:shortUrl", api.DeleteLink)
-	router.GET("/api/links", api.GetLinksPaginated)
-	router.GET("/api/owners/:owner/links", api.GetOwnerLinksPaginated)
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/links/:shortUrl", api.GetLinkMetadata)
+		v1.POST("/links/:shortUrl", api.CreateOrUpdateLink)
+		v1.DELETE("/links/:shortUrl", api.DeleteLink)
+		v1.GET("/links", api.GetLinksPaginated)
+		v1.GET("/owners/:owner/links", api.GetOwnerLinksPaginated)
+	}
 
 	router.Run(fmt.Sprintf(":%s", cfg.Port))
 }

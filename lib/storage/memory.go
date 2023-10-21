@@ -8,13 +8,18 @@ type InMemoryLinksBackend struct {
 	LinkMap map[string]models.Link
 }
 
+
+func (s InMemoryLinksBackend) Start() {
+	// No Op
+}
+
 func (s InMemoryLinksBackend) CreateOrUpdateLink(entry models.Link) {
 	s.LinkMap[entry.ShortUrl] = entry
 }
 
 func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
 	if val, ok := s.LinkMap[url]; ok {
-		return &val.TargetUrl, val.Permanent
+		return &val.TargetUrl, val.LinkOptions.Permanent
 	}
 
 	return nil, false

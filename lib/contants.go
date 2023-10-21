@@ -1,6 +1,7 @@
-package lib 
+package lib
 
-type ForbbiddenSet map[string]struct{}
+import (
+	"github.com/bobg/go-generics/v3/set"
+)
 
-var FORBIDDEN_LINKS = map[string]struct{}{}
-
+var FORBIDDEN_LINKS = set.New("admin", "myfavoritelink")
