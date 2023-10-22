@@ -4,7 +4,7 @@ CREATE TABLE links (
     target_url VARCHAR (2048) NOT NULL,
     permanent BOOLEAN NOT NULL,
     protected BOOLEAN NOT NULL,
-    owner VARCHAR (255) NOT NULL,
+    owned_by VARCHAR (255) NOT NULL,
     created TIMESTAMP NOT NULL default current_timestamp,
     modified TIMESTAMP NOT NULL default current_timestamp,
     description VARCHAR (500),

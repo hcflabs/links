@@ -2,11 +2,15 @@ package storage
 
 import (
 	"github.com/hcflabs/links/lib/models"
+	"github.com/sirupsen/logrus"
 )
 
 type InMemoryLinksBackend struct {
 	LinkMap map[string]models.InternalLink
 }
+
+var log = logrus.New()
+
 
 
 func (s InMemoryLinksBackend) Start() {

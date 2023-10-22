@@ -6,7 +6,7 @@ import (
 
 // API Link Structure
 type ExternalLinkMetaData struct {
-	Owner       string    `json:"owner" gorm:"index"`
+	Owner       string    `json:owned_by gorm:"index"`
 	Description string    `json:"text"`
 	CreatedAt   time.Time `json:"created" time_format:"RFC3339"`
 	UpdatedAt   time.Time `json:"modified" time_format:"RFC3339"`
@@ -22,12 +22,12 @@ type ExternalLink struct {
 
 // Internal Link Structure
 type InternalLink struct {
-	ShortUrl    string    `json:"short_url"`
-	TargetUrl   string    `json:"target_url"`
-	Owner       string    `json:"owner" gorm:"index"`
-	Description string    `json:"text"`
-	CreatedAt   time.Time `json:"created" time_format:"RFC3339"`
-	UpdatedAt   time.Time `json:"modified" time_format:"RFC3339"`
-	Permanent   bool      `json:"permanent"`
-	Protected   bool      `json:"protected"`
+	ShortUrl    string
+	TargetUrl   string
+	Owner       string
+	Description string
+	CreatedAt   time.Time ` time_format:"RFC3339"`
+	UpdatedAt   time.Time ` time_format:"RFC3339"`
+	Permanent   bool    
+	Protected   bool     
 }

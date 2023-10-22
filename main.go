@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
-
 	// "net/http"
 	// "github.com/gin-gonic/contrib/static"
 	// "github.com/gin-gonic/contrib/static"
@@ -49,11 +49,21 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 }
 
 func initLinks(backend storage.LinksBackend) {
+	// Log as JSON instead of the default ASCII formatter.
+	log.SetFormatter(&log.JSONFormatter{})
+	// Output to stdout instead of the default stderr
+	// Can be any io.Writer, see below for File example
+	log.SetOutput(os.Stdout)
+	// Only log the warning severity or above.
+	log.SetLevel(log.WarnLevel)
+	log.Info("Migrating Schema")
 	backend.Start()
+	log.Info("Loading Test Links")
 	// TODO Remove after Testing
 	util.InsertLink(backend, "holdon", "https://www.youtube.com/watch?v=HKK4KmDlj8U")
 	util.InsertLink(backend, "great", "https://www.youtube.com/watch?v=kSVQtlQtxCs")
 	util.InsertLink(backend, "hcf", "https://haltcatchfire.io")
+
 }
 
 func main() {
@@ -67,9 +77,9 @@ func main() {
 	// m.Up() // or m.Step(2) if you want to explicitly set the number of migrations to run
 
 	cfg, backend := loadConfig()
-	fmt.Printf("Loaded Config \n%+v\n", cfg)
-
-	fmt.Printf("Loading Test Links")
+	log.WithFields(log.Fields{
+		"config": cfg,
+	}).Info("Loading Config")
 	initLinks(backend)
 
 	// Set up Server
@@ -95,7 +105,6 @@ func main() {
 		v1.GET("/links", api.GetLinksPaginated)
 		v1.GET("/owners/:owner/links", api.GetOwnerLinksPaginated)
 	}
-
 
 	router.Run(fmt.Sprintf(":%s", cfg.Port))
 }
