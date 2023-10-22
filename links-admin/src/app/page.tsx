@@ -6,7 +6,7 @@ export default function Home() {
   const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/links")
+    fetch("/api/v1/links")
       .then((res) => res.json())
       .then((data) => {
         setData(data);

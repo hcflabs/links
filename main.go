@@ -12,7 +12,6 @@ import (
 	"github.com/hcflabs/links/lib/controllers"
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
-	"github.com/hcflabs/links/lib/storage/helpers"
 	"github.com/hcflabs/links/lib/util"
 	// "gorm.io/driver/postgres"
 )
@@ -34,11 +33,11 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 			Port:     os.Getenv("LINKS_DB_PORT"),
 		}
 
-		backend = helpers.BuildPostgresBackend(config)
+		backend = storage.BuildPostgresBackend(config)
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{
-			LinkMap: make(map[string]models.Link),
+			LinkMap: make(map[string]models.InternalLink),
 		}
 	}
 
@@ -96,6 +95,7 @@ func main() {
 		v1.GET("/links", api.GetLinksPaginated)
 		v1.GET("/owners/:owner/links", api.GetOwnerLinksPaginated)
 	}
+
 
 	router.Run(fmt.Sprintf(":%s", cfg.Port))
 }

@@ -4,25 +4,30 @@ import (
 	"time"
 )
 
-type LinkOptions struct {
-	Permanent bool `json:"permanent"`
-}
-
-type LinkMetadata struct {
+// API Link Structure
+type ExternalLinkMetaData struct {
 	Owner       string    `json:"owner" gorm:"index"`
 	Description string    `json:"text"`
 	CreatedAt   time.Time `json:"created" time_format:"RFC3339"`
 	UpdatedAt   time.Time `json:"modified" time_format:"RFC3339"`
+	Protected   bool      `json:"protected"`
 }
 
-type Link struct {
-	ShortUrl    string    `json:"short_url" gorm:"primaryKey" gorm:"index"`
+type ExternalLink struct {
+	ShortUrl  string `json:"short_url"`
+	TargetUrl string `json:"target_url"`
+	Permanent bool   `json:"permanent"`
+	MetaData  ExternalLinkMetaData
+}
+
+// Internal Link Structure
+type InternalLink struct {
+	ShortUrl    string    `json:"short_url"`
 	TargetUrl   string    `json:"target_url"`
-    LinkMetadata LinkMetadata
-    LinkOptions LinkOptions
-
-}
-
-type Error struct {
-	message string
+	Owner       string    `json:"owner" gorm:"index"`
+	Description string    `json:"text"`
+	CreatedAt   time.Time `json:"created" time_format:"RFC3339"`
+	UpdatedAt   time.Time `json:"modified" time_format:"RFC3339"`
+	Permanent   bool      `json:"permanent"`
+	Protected   bool      `json:"protected"`
 }

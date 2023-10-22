@@ -92,7 +92,7 @@ func verify() bool {
 	return true
 }
 
-func fromContext(c *gin.Context) (link models.Link) {
+func fromContext(c *gin.Context) (link models.InternalLink) {
 	if err := c.BindJSON(&link); err != nil {
 
 		// TODO Handle?
