@@ -2,18 +2,23 @@ package controllers
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/hcflabs/links/lib"
 	"github.com/hcflabs/links/lib/models"
 	"github.com/hcflabs/links/lib/storage"
-	"log"
-	"net/http"
-	"strconv"
+	"github.com/sirupsen/logrus"
 )
 
 type ApiController struct {
 	Backend storage.LinksBackend
 }
+
+var log = logrus.New()
+
 
 func (controller ApiController) GetRedirect(c *gin.Context) {
 	shortUrl := c.Param("shortUrl")
@@ -72,6 +77,7 @@ func (controller ApiController) GetLinksPaginated(c *gin.Context) {
 }
 
 func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
+	
 	pagesize, err := strconv.Atoi(c.Query("pagesize"))
 	if err != nil {
 		// ... handle error
@@ -92,7 +98,7 @@ func verify() bool {
 	return true
 }
 
-func fromContext(c *gin.Context) (link models.Link) {
+func fromContext(c *gin.Context) (link models.InternalLink) {
 	if err := c.BindJSON(&link); err != nil {
 
 		// TODO Handle?

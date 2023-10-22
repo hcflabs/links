@@ -5,7 +5,7 @@
 ```json
 {
     "target_url": str, // Redirect URL
-    // "owner": str, // User/Group that owns link
+    // owned_by: str, // User/Group that owns link
     "description": str // Short Description of purpose
 }
 ```
@@ -13,7 +13,7 @@
 ```json
 {
     "target_url": str, // Redirect URL
-    "owner": str, // User/Group that owns link
+    owned_by: str, // User/Group that owns link
     "description": str, // Short Description of purpose
     "creation_time": int, // timestamp
     "last_modified": int, // timestamp
