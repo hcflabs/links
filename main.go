@@ -34,6 +34,17 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 		}
 
 		backend = storage.BuildPostgresBackend(config)
+	case "postgres":
+		fmt.Printf("Postgres Backend loading")
+		config := storage.PostgresConfig{
+			Host:     os.Getenv("LINKS_DB_HOST"),
+			User:     os.Getenv("LINKS_DB_USER"),
+			Password: os.Getenv("LINKS_DB_PASSWORD"),
+			Database: os.Getenv("LINKS_DB_DATABASE"),
+			Port:     os.Getenv("LINKS_DB_PORT"),
+		}
+
+		backend = storage.BuildPostgresBackend(config)
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{

@@ -1,0 +1,28 @@
+// [START declaration]
+syntax = "proto3";
+package links;
+
+import "google/protobuf/timestamp.proto";
+// [END declaration]
+
+// [START go_declaration]
+option go_package = "github.com/hcflabs/links/proto";
+// [END go_declaration]
+
+
+// [START messages]
+message Link {
+    string short_url = 1; // Unique
+    string target_url = 2;  
+    bool permanent = 3;
+
+    message LinksMetadata {
+      string owner = 1;
+      bool protected = 2;
+      google.protobuf.Timestamp created = 3;
+      google.protobuf.Timestamp modified = 4;
+    }
+  
+    LinksMetadata metadata = 4;
+  }
+  // [END messages]
