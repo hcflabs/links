@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 // [END declaration]
 
 // [START go_declaration]
-option go_package = "github.com/hcflabs/links/proto";
+option go_package = "lib/models";
 // [END go_declaration]
 
 

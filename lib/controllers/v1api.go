@@ -17,7 +17,7 @@ type ApiController struct {
 	Backend storage.LinksBackend
 }
 
-var log = logrus.New()
+var apilog = logrus.New()
 
 
 func (controller ApiController) GetRedirect(c *gin.Context) {
@@ -98,7 +98,7 @@ func verify() bool {
 	return true
 }
 
-func fromContext(c *gin.Context) (link models.InternalLink) {
+func fromContext(c *gin.Context) (link *models.Link) {
 	if err := c.BindJSON(&link); err != nil {
 
 		// TODO Handle?

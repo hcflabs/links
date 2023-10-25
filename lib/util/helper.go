@@ -6,8 +6,8 @@ import (
 	// "time"
 )
 
-func BuildLink(shortURL string, target string) (link models.InternalLink) {
-	link = models.InternalLink{
+func BuildLink(shortURL string, target string) (link *models.Link) {
+	link = &models.Link{
 		ShortUrl:  shortURL,
 		TargetUrl: target,
 		// LinkMetadata: models.LinkMetadata{
@@ -17,7 +17,7 @@ func BuildLink(shortURL string, target string) (link models.InternalLink) {
 		// 	UpdatedAt:   time.Now(),
 		// },
 		// LinkOptions: models.LinkOptions{
-		// 	Permanent: false,
+		Permanent: false,
 		// },
 	}
 	return

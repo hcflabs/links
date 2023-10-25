@@ -86,3 +86,7 @@ links
 # typescript
 *.tsbuildinfo
 *next-env.d.ts
+
+
+# Proto
+*.pb.go
