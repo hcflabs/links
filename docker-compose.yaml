@@ -18,9 +18,12 @@ services:
     restart: always
     ports:
       - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
-    volumes: 
-      - cache:/data
+    command: redis-server --save 20 1 --loglevel warning --requirepass password
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 1s
+      timeout: 3s
+      retries: 5
   links:
     build: .
     ports:
@@ -29,10 +32,10 @@ services:
       - LINKS_BACKEND=redis
       - LINKS_PORT=8080
       - LINKS_DB_HOST=host.docker.internal
-      - LINKS_DB_USER=postgres
-      - LINKS_DB_PASSWORD=postgres
-      - LINKS_DB_DATABASE=hcflinks
-      - LINKS_DB_PORT=9988
+      - LINKS_DB_USER=redis
+      - LINKS_DB_PASSWORD=password
+      - LINKS_DB_DATABASE=1
+      - LINKS_DB_PORT=6379
     depends_on:
       db:
         condition: service_healthy

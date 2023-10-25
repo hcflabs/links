@@ -34,9 +34,9 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 		}
 
 		backend = storage.BuildPostgresBackend(config)
-	case "postgres":
-		fmt.Printf("Postgres Backend loading")
-		config := storage.PostgresConfig{
+	case "redis":
+		fmt.Printf("Redis Backend loading")
+		config := storage.RedisConfig{
 			Host:     os.Getenv("LINKS_DB_HOST"),
 			User:     os.Getenv("LINKS_DB_USER"),
 			Password: os.Getenv("LINKS_DB_PASSWORD"),
@@ -44,11 +44,11 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 			Port:     os.Getenv("LINKS_DB_PORT"),
 		}
 
-		backend = storage.BuildPostgresBackend(config)
+		backend = storage.BuildRedisBackend(config)
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{
-			LinkMap: make(map[string]models.InternalLink),
+			LinkMap: make(map[string]models.Link),
 		}
 	}
 

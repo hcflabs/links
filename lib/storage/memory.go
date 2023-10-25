@@ -6,10 +6,10 @@ import (
 )
 
 type InMemoryLinksBackend struct {
-	LinkMap map[string]models.InternalLink
+	LinkMap map[string]models.Link
 }
 
-var log = logrus.New()
+var memlog = logrus.New()
 
 
 
@@ -17,8 +17,8 @@ func (s InMemoryLinksBackend) Start() {
 	// No Op
 }
 
-func (s InMemoryLinksBackend) CreateOrUpdateLink(entry models.InternalLink) {
-	s.LinkMap[entry.ShortUrl] = entry
+func (s InMemoryLinksBackend) CreateOrUpdateLink(entry *models.Link) {
+	s.LinkMap[entry.ShortUrl] = *entry
 }
 
 func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
@@ -30,11 +30,11 @@ func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permane
 	return nil, false
 }
 
-func (s InMemoryLinksBackend) GetOwnersLinks(owner string) (links []models.InternalLink) {
+func (s InMemoryLinksBackend) GetOwnersLinks(owner string) (links *[]models.Link) {
 	panic("unimplemented")
 }
 
-func (s InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *models.InternalLink) {
+func (s InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *models.Link) {
 	if val, ok := s.LinkMap[shortUrl]; ok {
 		return &val
 	}
@@ -46,11 +46,11 @@ func (s InMemoryLinksBackend) DeleteLink(shortUrl string) {
 }
 
 // getAllLinksPaginated implements LinksBackend.
-func (s InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links []models.InternalLink) {
+func (s InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links *[]models.Link) {
 	panic("unimplemented")
 }
 
 // getOwnersLinksPaginated implements LinksBackend.
-func (InMemoryLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links []models.InternalLink) {
+func (InMemoryLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]models.Link) {
 	panic("unimplemented")
 }
