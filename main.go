@@ -2,15 +2,18 @@ package main
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+
+	log "github.com/sirupsen/logrus"
+
 	// "net/http"
 	// "github.com/gin-gonic/contrib/static"
 	// "github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/hcflabs/links/lib/controllers"
-	"github.com/hcflabs/links/lib/models"
+	"github.com/hcflabs/links/lib/generated"
+	"github.com/hcflabs/links/lib/middleware"
 	"github.com/hcflabs/links/lib/storage"
 	"github.com/hcflabs/links/lib/util"
 	// "gorm.io/driver/postgres"
@@ -48,7 +51,7 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{
-			LinkMap: make(map[string]models.Link),
+			LinkMap: make(map[string]generated.Link),
 		}
 	}
 
@@ -91,16 +94,19 @@ func main() {
 	log.WithFields(log.Fields{
 		"config": cfg,
 	}).Info("Loading Config")
+
 	initLinks(backend)
 
 	// Set up Server
 	router := gin.Default()
+	router.Use(gin.Recovery())                 // NEW
+	router.Use(middleware.LoggingMiddleware()) // NEW
 
 	// Init
 	api := controllers.ApiController{Backend: backend}
 	// Serve frontend static files
 	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
-	router.Static("/admin", fmt.Sprintf("%s", cfg.AdminBuildPath))
+	router.Static("/admin", cfg.AdminBuildPath)
 	router.GET("/admin", func(c *gin.Context) {
 		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
 	})

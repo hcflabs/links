@@ -3,13 +3,16 @@ package storage
 import (
 	"context"
 	b64 "encoding/base64"
+	"errors"
 	"fmt"
+
 	// "net/url"
 	// "os"
 	"strconv"
 
 	// "github.com/georgysavva/scany/v2/pgxscan"
-	"github.com/hcflabs/links/lib/models"
+
+	"github.com/hcflabs/links/lib/generated"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/protobuf/proto"
 
@@ -58,61 +61,60 @@ func (r *RedisLinksBackend) Start() {
 }
 
 // GetTargetLink implements LinksBackend.
-func (r *RedisLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
+func (r *RedisLinksBackend) GetTargetLink(url string) (target *string, permanent bool, err error) {
 	result, err := r.client.Get(context.Background(), url).Result()
 	if err != nil {
 		redislog.Error("Issues with getting key", err)
-		return nil, false
+		return nil, false, err
 	}
 	li := fromB64Str(result)
-	return &li.TargetUrl, li.Permanent
+	return &li.TargetUrl, li.Permanent, nil 
 }
 
 // CreateOrUpdateLink implements LinksBackend.
-func (r *RedisLinksBackend) CreateOrUpdateLink(link *models.Link) {
-	err := r.client.Set(context.Background(), link.ShortUrl, toB64Str(link), 0).Err()
-	if err != nil {
-		panic(err)
-	}
+func (r *RedisLinksBackend) CreateOrUpdateLink(link *generated.Link) error {
+	return r.client.Set(context.Background(), link.ShortUrl, toB64Str(link), 0).Err()
+
 }
 
 // DeleteLink implements LinksBackend.
-func (r *RedisLinksBackend) DeleteLink(url string) {
+func (r *RedisLinksBackend) DeleteLink(url string) error {
 	result, err := r.client.Del(context.Background(), url).Result()
 	if err != nil {
 		redislog.Error("Issues with deleting key", err)
-		return
+		return err
 	}
 	redislog.Info(fmt.Sprintf("Deleted %s with %d entries"), url, result)
+	return nil
 }
 
 // GetAllLinksPaginated implements LinksBackend.
-func (r *RedisLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links *[]models.Link) {
+func (r *RedisLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links []generated.Link, err error) {
 	panic("unimplemented")
 }
 
 // GetLinkMetadata implements LinksBackend.
-func (r *RedisLinksBackend) GetLinkMetadata(url string) (link *models.Link) {
+func (r *RedisLinksBackend) GetLinkMetadata(url string) (link *generated.Link, err error) {
 	result, err := r.client.Get(context.Background(), url).Result()
 	if err != nil {
 		redislog.Error("Issues with getting key", err)
-		return nil
+		return nil, err
 	}
 	li := fromB64Str(result)
-	return li
+	return li, nil
 }
 
 // GetOwnersLinks implements LinksBackend.
-func (r *RedisLinksBackend) GetOwnersLinks(owner string) (links *[]models.Link) {
+func (r *RedisLinksBackend) GetOwnersLinks(owner string) (links []generated.Link) {
 	panic("unimplemented")
 }
 
 // GetOwnersLinksPaginated implements LinksBackend.
-func (r *RedisLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]models.Link) {
+func (r *RedisLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links []generated.Link) {
 	panic("unimplemented")
 }
 
-func toB64Str(link *models.Link) string {
+func toB64Str(link *generated.Link) string {
 
 	bytes, err := proto.Marshal(link)
 	if err != nil {
@@ -123,14 +125,14 @@ func toB64Str(link *models.Link) string {
 
 }
 
-func fromB64Str(encoded string) (link *models.Link) {
+func fromB64Str(encoded string) (link *generated.Link) {
 	sDec, err := b64.StdEncoding.DecodeString(encoded)
 
 	if err != nil {
 		redislog.Error("Trouble Decoding", err)
 		panic("bad decode")
 	}
-	lclink := &models.Link{}
+	lclink := &generated.Link{}
 	err = proto.Unmarshal(sDec, lclink)
 	if err != nil {
 		redislog.Error("Trouble Unmarshal", err)

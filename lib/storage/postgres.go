@@ -2,12 +2,13 @@ package storage
 
 import (
 	"context"
-	// "fmt"
+	"fmt"
+
 	// "os"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
-	"github.com/hcflabs/links/lib/models"
-	"github.com/sirupsen/logrus"
+	"github.com/hcflabs/links/lib/generated"
+	log "github.com/sirupsen/logrus"
 
 	// "github.com/jackc/pgx/v5"
 	"strconv"
@@ -29,27 +30,28 @@ type PostgresLinksBackend struct {
 }
 
 // Create a new instance of the logger. You can have any number of instances.
-var log = logrus.New()
 
-func BuildPostgresBackend(localConfig PostgresConfig) (backend PostgresLinksBackend) {
+func BuildPostgresBackend(localConfig PostgresConfig) PostgresLinksBackend {
 	// fmt.Printf("%+v\n", config)
 	// dsn := "host=localhost user=postgres password=postgres dbname=hcflinks port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 
 	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.Host, config.User, config.Password, config.Database, config.Port)
 
 	// "postgres://username:password@localhost:5432/database_name"
-	// connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", localConfig.User, localConfig.Password, localConfig.Host, localConfig.Port, localConfig.Database)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", localConfig.User, localConfig.Password, localConfig.Host, localConfig.Port, localConfig.Database)
 	// poolconfiL, err := pgxpool.ParseConfig(connStr)
 	// if err != nil {
 	//     fmt.Fprintf(os.Stderr, "Unable to parse config: %v\n", err)
 	//     os.Exit(1)
 	// }
 	// db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	// if err != nil {
-	// 	panic("failed to connect database")
-	// }
-	// ctx := context.Background()
-	// db, _ := pgxpool.New(ctx, builtURL)
+
+	db, err := pgxpool.New(context.Background(), connStr)
+
+	if err != nil {
+		log.Error("failed to connect to database", err)
+		panic("failed to connect database")
+	}
 
 	// looger := &log.Logger{
 	//     Out:          os.Stderr,
@@ -75,12 +77,12 @@ func BuildPostgresBackend(localConfig PostgresConfig) (backend PostgresLinksBack
 	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",config.User,config.Password,config.Host, config.Port, config.Database )
 	// db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
-	// backend = PostgresLinksBackend{DB: conn}
+	return PostgresLinksBackend{DB: db}
 
-	return
 }
 
 func (s PostgresLinksBackend) Start() {
+	log.Info("Init'ing DB Schema")
 	// Create Table
 	s.DB.Exec(context.Background(), `
 		CREATE TABLE IF NOT EXISTS "links" (
@@ -107,7 +109,7 @@ func (s PostgresLinksBackend) Start() {
 }
 
 // GetTargetLink implements LinksBackend.
-func (s PostgresLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
+func (s PostgresLinksBackend) GetTargetLink(url string) (target *string, permanent bool, err error) {
 	// s.DB.First(&link, "short_url", url)
 	// .Scan(&target, permanent)
 	target_struct := struct {
@@ -116,12 +118,12 @@ func (s PostgresLinksBackend) GetTargetLink(url string) (target *string, permane
 	}{}
 
 	pgxscan.Select(context.Background(), s.DB, &target_struct, "select target_url, permanent from links where short_url=$1", url)
-	return &target_struct.target_url, target_struct.permanent
+	return &target_struct.target_url, target_struct.permanent, nil
 
 }
 
 // CreateOrUpdateLink implements LinksBackend.
-func (s PostgresLinksBackend) CreateOrUpdateLink(entry *models.Link) {
+func (s PostgresLinksBackend) CreateOrUpdateLink(entry *generated.Link) error {
 	// s.DB.Clauses(clause.OnConflict{
 	// 	Columns:   []clause.Column{{Name: "short_url"}},
 	// 	// DoUpdates: clause.AssignmentColumns([]string{"target_url", owned_by, "description", "updated_at"}),
@@ -132,29 +134,28 @@ func (s PostgresLinksBackend) CreateOrUpdateLink(entry *models.Link) {
 		on conflict (short_url) do update set target_url=excluded.target_url, owned_by=excluded.owned_by, permanent=excluded.permanent, 
 		protected=excluded.protected, description=excluded.description;`,
 		entry.ShortUrl, entry.TargetUrl, entry.Permanent, entry.Permanent, strconv.FormatBool(false), ""); err != nil {
-		panic(err)
+		return err
 	}
 }
 
 // DeleteLink implements LinksBackend.
-func (s PostgresLinksBackend) DeleteLink(url string) {
+func (s PostgresLinksBackend) DeleteLink(url string) error {
 	// s.DB.Clauses(clause.OnConflict{
 	// 	Columns:   []clause.Column{{Name: "id"}},
 	// 	DoUpdates: clause.AssignmentColumns([]string{"name", "age"}),
 	// }).Create(&entry)
-	// s.DB.Where(fmt.Sprintf("short_url == %s", url)).Delete(&models.Link{})
-	if _, err := s.DB.Exec(context.Background(), "delete from links where short_url=$1", url); err != nil {
-		panic("Internal server error")
-	}
+	// s.DB.Where(fmt.Sprintf("short_url == %s", url)).Delete(&generated.Link{})
+	_, err := s.DB.Exec(context.Background(), "delete from links where short_url=$1", url)
+	return err
 }
 
 // GetAllLinksPaginated implements LinksBackend.
-func (s PostgresLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links *[]models.Link) {
+func (s PostgresLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links *[]generated.Link, err error) {
 	panic("unimplemented")
 }
 
 // GetLinkMetadata implements LinksBackend.
-func (s PostgresLinksBackend) GetLinkMetadata(url string) (link *models.Link) {
+func (s PostgresLinksBackend) GetLinkMetadata(url string) (link *generated.Link, err error) {
 	// s.DB.First(&link, "short_url", url)
 	// var link []*models.InternalLink
 	pgxscan.Select(context.Background(), s.DB, &link,
@@ -165,17 +166,17 @@ func (s PostgresLinksBackend) GetLinkMetadata(url string) (link *models.Link) {
 	// 	return nil
 	// }
 
-	return
+	return nil, nil
 }
 
 // GetOwnersLinks implements LinksBackend.
-func (s PostgresLinksBackend) GetOwnersLinks(owner string) (links *[]models.Link) {
+func (s PostgresLinksBackend) GetOwnersLinks(owner string) (links *[]generated.Link, err error) {
 
 	panic("unimplemented")
 
 }
 
 // GetOwnersLinksPaginated implements LinksBackend.
-func (s PostgresLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]models.Link) {
+func (s PostgresLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]generated.Link, err error) {
 	panic("unimplemented")
 }

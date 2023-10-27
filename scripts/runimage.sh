@@ -1,6 +1,8 @@
 #!/bin/bash
 set -v
-docker build -t links . 
+
+./scripts/buildImage.sh
+
 docker run -p 8080:8080 \
     --expose='8080' \
     -e LINKS_PORT='8080' \

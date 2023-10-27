@@ -1,29 +1,29 @@
 services:
-  # db:
-  #   image: postgres:alpine3.18
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=postgres
-  #     - POSTGRES_DB=hcflinks
-  #   ports:
-  #     - 9988:5432
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U postgres"]
-  #     interval: 5s
-  #     timeout: 5s
-  #     retries: 5
   db:
-    image: redis:alpine3.18
+    image: postgres:alpine3.18
     restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=hcflinks
     ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning --requirepass password
+      - 9988:5432
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-      interval: 1s
-      timeout: 3s
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
       retries: 5
+  # db:
+  #   image: redis:alpine3.18
+  #   restart: always
+  #   ports:
+  #     - '9988:6379'
+  #   command: redis-server --save 20 1 --loglevel warning --requirepass password
+  #   healthcheck:
+  #     test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+  #     interval: 1s
+  #     timeout: 3s
+  #     retries: 5
   links:
     build: .
     ports:
@@ -32,10 +32,10 @@ services:
       - LINKS_BACKEND=redis
       - LINKS_PORT=8080
       - LINKS_DB_HOST=host.docker.internal
-      - LINKS_DB_USER=redis
+      - LINKS_DB_USER=postgres
       - LINKS_DB_PASSWORD=password
-      - LINKS_DB_DATABASE=1
-      - LINKS_DB_PORT=6379
+      - LINKS_DB_DATABASE=hcflinks
+      - LINKS_DB_PORT=9988
     depends_on:
       db:
         condition: service_healthy

@@ -1,56 +1,59 @@
 package storage
 
 import (
-	"github.com/hcflabs/links/lib/models"
-	"github.com/sirupsen/logrus"
+	"errors"
+
+	"github.com/bobg/go-generics/v3/maps"
+	"github.com/hcflabs/links/lib/generated"
+
+	//  "golang.org/x/exp/map"
+	log "github.com/sirupsen/logrus"
 )
 
 type InMemoryLinksBackend struct {
-	LinkMap map[string]models.Link
+	LinkMap map[string]generated.Link
 }
-
-var memlog = logrus.New()
-
-
 
 func (s InMemoryLinksBackend) Start() {
 	// No Op
 }
 
-func (s InMemoryLinksBackend) CreateOrUpdateLink(entry *models.Link) {
+func (s InMemoryLinksBackend) CreateOrUpdateLink(entry *generated.Link) error {
 	s.LinkMap[entry.ShortUrl] = *entry
 }
 
-func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permanent bool) {
+func (s InMemoryLinksBackend) GetTargetLink(url string) (target *string, permanent bool, err error) {
 	if val, ok := s.LinkMap[url]; ok {
 		// return &val.TargetUrl, val.LinkOptions.Permanent
-		return &val.TargetUrl, false
+		return &val.TargetUrl, false, nil
 	}
 
-	return nil, false
+	return nil, false, errors.New("Did not find target")
 }
 
-func (s InMemoryLinksBackend) GetOwnersLinks(owner string) (links *[]models.Link) {
+func (s InMemoryLinksBackend) GetOwnersLinks(owner string) (links []generated.Link, err error) {
 	panic("unimplemented")
 }
 
-func (s InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *models.Link) {
+func (s InMemoryLinksBackend) GetLinkMetadata(shortUrl string) (link *generated.Link, err error) {
 	if val, ok := s.LinkMap[shortUrl]; ok {
-		return &val
+		return &val, nil
 	}
+	return nil, errors.New("Did not find target")
+}
+
+func (s InMemoryLinksBackend) DeleteLink(shortUrl string) error {
+	delete(s.LinkMap, shortUrl)
 	return nil
 }
 
-func (s InMemoryLinksBackend) DeleteLink(shortUrl string) {
-	delete(s.LinkMap, shortUrl)
-}
-
 // getAllLinksPaginated implements LinksBackend.
-func (s InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links *[]models.Link) {
-	panic("unimplemented")
+func (s InMemoryLinksBackend) GetAllLinksPaginated(offset int, pagesize int) (links []generated.Link, err error) {
+
+	return maps.Values(s.LinkMap), nil
 }
 
 // getOwnersLinksPaginated implements LinksBackend.
-func (InMemoryLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]models.Link) {
+func (InMemoryLinksBackend) GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links []generated.Link, err error) {
 	panic("unimplemented")
 }

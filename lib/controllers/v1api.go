@@ -2,37 +2,39 @@ package controllers
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hcflabs/links/lib"
-	"github.com/hcflabs/links/lib/models"
+	"github.com/hcflabs/links/lib/generated"
 	"github.com/hcflabs/links/lib/storage"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type ApiController struct {
 	Backend storage.LinksBackend
 }
 
-var apilog = logrus.New()
+func init() {
+	log.SetLevel(log.InfoLevel) // NEW
+}
 
-
-func (controller ApiController) GetRedirect(c *gin.Context) {
+func (controller ApiController) GetLink(c *gin.Context) {
 	shortUrl := c.Param("shortUrl")
 	targetUrl, permanent := controller.Backend.GetTargetLink(shortUrl)
 
 	if targetUrl != nil {
-		fmt.Printf("%s --> %s\n", shortUrl, *targetUrl)
+		log.Info(fmt.Sprintf("%s --> %s\n", shortUrl, *targetUrl))
 		if permanent {
 			c.Redirect(http.StatusPermanentRedirect, *targetUrl)
 		} else {
-			c.Redirect(http.StatusTemporaryRedirect, *targetUrl)
+			c.Redirect(http.StatusFound, *targetUrl)
 		}
 	} else {
-		c.Status(http.StatusNotFound)
+		// c.Status(http.StatusNotFound)
+		c.Redirect(http.StatusFound, fmt.Sprintf("/admin/new/%s", shortUrl))
 	}
 }
 
@@ -77,7 +79,7 @@ func (controller ApiController) GetLinksPaginated(c *gin.Context) {
 }
 
 func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
-	
+
 	pagesize, err := strconv.Atoi(c.Query("pagesize"))
 	if err != nil {
 		// ... handle error
@@ -98,7 +100,7 @@ func verify() bool {
 	return true
 }
 
-func fromContext(c *gin.Context) (link *models.Link) {
+func fromContext(c *gin.Context) (link *generated.Link) {
 	if err := c.BindJSON(&link); err != nil {
 
 		// TODO Handle?

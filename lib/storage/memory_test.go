@@ -1,15 +1,16 @@
 package storage_test
 
 import (
-	"github.com/hcflabs/links/lib/models"
+	"testing"
+
+	"github.com/hcflabs/links/lib/generated"
 	"github.com/hcflabs/links/lib/storage"
 	"github.com/hcflabs/links/lib/util"
-	"testing"
 )
 
 func GetEmpty() (backend storage.InMemoryLinksBackend) {
 	backend = storage.InMemoryLinksBackend{
-		LinkMap: make(map[string]models.Link),
+		LinkMap: make(map[string]generated.Link),
 	}
 	return
 }

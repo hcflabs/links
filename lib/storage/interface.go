@@ -1,18 +1,16 @@
 package storage
 
-import (
-	"github.com/hcflabs/links/lib/models"
-)
+import "github.com/hcflabs/links/lib/generated"
 
 type LinksBackend interface {
 	Start()
-	CreateOrUpdateLink(link *models.Link)
-	GetTargetLink(url string) (target *string, permanent bool)
-	GetOwnersLinks(owner string) (links *[]models.Link)
-	GetOwnersLinksPaginated(owner string, offset int, pagesize int) (links *[]models.Link)
-	GetAllLinksPaginated(offset int, pagesize int) (links *[]models.Link)
-	GetLinkMetadata(url string) (link *models.Link)
-	DeleteLink(url string)
+	CreateOrUpdateLink(*generated.Link) error
+	GetTargetLink(url string) (*string, bool, error)
+	GetOwnersLinks(owner string) (*[]generated.Link, error)
+	GetOwnersLinksPaginated(owner string, offset int, pagesize int) (*[]generated.Link, error)
+	GetAllLinksPaginated(offset int, pagesize int) (*[]generated.Link, error)
+	GetLinkMetadata(url string) (*generated.Link, error)
+	DeleteLink(url string) error
 	//TODO: Implement Analytics
 	// GetMostRecentLinks(offset int, pagesize int)(links []models.InternalLink)
 	// GetMostRecentModifiedLinks(offset int, pagesize int)(links []models.InternalLink)

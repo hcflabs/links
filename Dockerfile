@@ -8,14 +8,14 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /frontend
 
 # Install dependencies based on the preferred package manager
-COPY links-admin/package.json links-admin/package-lock.json* ./
+COPY frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM npmbase AS frontendbuilder
 WORKDIR /frontend
 COPY --from=deps /frontend/node_modules ./node_modules
-COPY links-admin/ ./
+COPY frontend/ ./
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
