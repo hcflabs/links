@@ -21,9 +21,14 @@ func init() {
 	log.SetLevel(log.InfoLevel) // NEW
 }
 
-func (controller ApiController) GetLink(c *gin.Context) {
+func (controller ApiController) GoToLink(c *gin.Context) {
 	shortUrl := c.Param("shortUrl")
-	targetUrl, permanent := controller.Backend.GetTargetLink(shortUrl)
+	targetUrl, permanent, err := controller.Backend.GetTargetLink(shortUrl)
+
+	if err != nil {
+		log.Error("couldn't get links", err)
+		c.Status(http.StatusInternalServerError)
+	}
 
 	if targetUrl != nil {
 		log.Info(fmt.Sprintf("%s --> %s\n", shortUrl, *targetUrl))
@@ -50,7 +55,13 @@ func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
 }
 
 func (controller ApiController) GetLinkMetadata(c *gin.Context) {
-	linkMetadata := controller.Backend.GetLinkMetadata(c.Param("shortUrl"))
+	req_url := c.Param("shortUrl")
+	linkMetadata, err := controller.Backend.GetLinkMetadata(req_url)
+	if err != nil {
+		log.Error(fmt.Sprintf("Error when getting %s", req_url), err)
+		c.Status(http.StatusInternalServerError)
+	}
+
 	if linkMetadata != nil {
 		c.JSON(http.StatusCreated, *linkMetadata)
 	} else {
@@ -75,7 +86,13 @@ func (controller ApiController) GetLinksPaginated(c *gin.Context) {
 		// ... handle error
 		offset = 0
 	}
-	c.JSON(http.StatusOK, controller.Backend.GetAllLinksPaginated(offset, pagesize))
+	pages, err := controller.Backend.GetAllLinksPaginated(offset, pagesize)
+
+	if err != nil {
+		log.Error(fmt.Sprintf("Trouble getting paginated results for %d", offset), err)
+	}
+
+	c.JSON(http.StatusOK, pages)
 }
 
 func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
@@ -93,7 +110,12 @@ func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
 	}
 
 	owner := c.Param("owner")
-	c.JSON(http.StatusOK, controller.Backend.GetOwnersLinksPaginated(owner, offset, pagesize))
+	links, err := controller.Backend.GetOwnersLinksPaginated(owner, offset, pagesize)
+	if err != nil {
+		log.Error("trouble getting", err)
+		c.Status(http.StatusInternalServerError)
+	}
+	c.JSON(http.StatusOK, links)
 }
 
 func verify() bool {

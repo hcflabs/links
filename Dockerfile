@@ -1,5 +1,5 @@
 # Build NextJS Image
-FROM node:lts-alpine3.18 AS npmbase
+FROM node:20.9.0-alpine3.18 AS npmbase
 
 # Install dependencies only when needed
 FROM npmbase AS deps

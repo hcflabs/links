@@ -136,6 +136,7 @@ func (s PostgresLinksBackend) CreateOrUpdateLink(entry *generated.Link) error {
 		entry.ShortUrl, entry.TargetUrl, entry.Permanent, entry.Permanent, strconv.FormatBool(false), ""); err != nil {
 		return err
 	}
+	return nil
 }
 
 // DeleteLink implements LinksBackend.

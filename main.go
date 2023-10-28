@@ -111,7 +111,7 @@ func main() {
 		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
 	})
 	// Primary User Route
-	router.GET("/:shortUrl", api.GetRedirect)
+	router.GET("/:shortUrl", api.GoToLink)
 
 	// Admin API
 	v1 := router.Group("/api/v1")
