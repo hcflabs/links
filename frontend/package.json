@@ -10,7 +10,7 @@
     "export": "next build"
   },
   "dependencies": {
-    "axios": "^1.5.1",
+    "axios": "^1.6.0",
     "ky": "^1.1.2",
     "next": "14.0.0",
     "react": "^18",
