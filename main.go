@@ -107,8 +107,8 @@ func main() {
 	// Serve frontend static files
 	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
 	router.Static("/admin", cfg.AdminBuildPath)
-	router.GET("/admin", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "/admin/edit")
 	})
 	// Primary User Route
 	router.GET("/:shortUrl", api.GoToLink)
