@@ -11,6 +11,14 @@ option go_package = "lib/generated";
 
 
 // [START messages]
+message NewLink {
+  string short_url = 1; // Unique
+  string target_url = 2;  
+  bool permanent = 3;
+  string owner = 4;
+  bool protected = 5;
+}
+
 message Link {
     string short_url = 1; // Unique
     string target_url = 2;  

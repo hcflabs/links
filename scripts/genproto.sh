@@ -2,8 +2,7 @@
 protoc --go-grpc_out=require_unimplemented_servers=false:. \
     --plugin="protoc-gen-ts=./frontend/node_modules/.bin/protoc-gen-ts" \
     --ts_opt=esModuleInterop=true \
-    --js_out="./frontend/src/generated" \
-    --ts_out="./frontend/src/generated" \
+    --ts_out="./frontend/src" \
     --go_out=. \
     -I=. ./defs/link.proto
 
