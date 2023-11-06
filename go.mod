@@ -3,12 +3,11 @@ module github.com/hcflabs/links
 go 1.21.3
 
 require (
-	github.com/bobg/go-generics v1.7.2
 	github.com/bobg/go-generics/v3 v3.0.1
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/jackc/pgx/v5 v5.4.3
-	github.com/redis/go-redis/v9 v9.2.1
+	github.com/redis/go-redis/v9 v9.3.0
 	github.com/sirupsen/logrus v1.9.3
 	google.golang.org/protobuf v1.31.0
 )
