@@ -15,6 +15,7 @@ export default function EditPage({ params }: { params: { slug: string } }) {
     <div>
       <Formik
         initialValues={{
+          short_url: "string",
           target_url: "string",
           owner: "string",
           permanent: false,

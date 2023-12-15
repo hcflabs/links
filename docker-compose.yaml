@@ -36,6 +36,7 @@ services:
       - LINKS_DB_PASSWORD=password
       - LINKS_DB_DATABASE=hcflinks
       - LINKS_DB_PORT=9988
+      - LINKS_ADMIN_PATH="/frontend"
     depends_on:
       db:
         condition: service_healthy

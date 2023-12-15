@@ -105,10 +105,9 @@ func main() {
 	// Init
 	api := controllers.ApiController{Backend: backend}
 	// Serve frontend static files
-	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
 	router.Static("/admin", cfg.AdminBuildPath)
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "/admin/edit")
+	router.GET("/admin", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "/admin/index.html")
 	})
 	// Primary User Route
 	router.GET("/:shortUrl", api.GoToLink)
