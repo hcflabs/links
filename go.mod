@@ -9,7 +9,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.1
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/sirupsen/logrus v1.9.3
-	google.golang.org/protobuf v1.31.0
+	google.golang.org/protobuf v1.32.0
 )
 
 require (
