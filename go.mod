@@ -3,7 +3,7 @@ module github.com/hcflabs/links
 go 1.21.3
 
 require (
-	github.com/bobg/go-generics/v3 v3.0.1
+	github.com/bobg/go-generics/v3 v3.1.0
 	github.com/georgysavva/scany/v2 v2.0.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/jackc/pgx/v5 v5.5.1
