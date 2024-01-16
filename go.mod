@@ -4,7 +4,7 @@ go 1.21.3
 
 require (
 	github.com/bobg/go-generics/v3 v3.1.1
-	github.com/georgysavva/scany/v2 v2.0.0
+	github.com/georgysavva/scany/v2 v2.1.0
 	github.com/gin-gonic/gin v1.9.1
 	github.com/jackc/pgx/v5 v5.5.2
 	github.com/redis/go-redis/v9 v9.4.0
