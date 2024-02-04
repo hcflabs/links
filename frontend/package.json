@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "updatedeps" : "npx npm-check-updates -u && npm install",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

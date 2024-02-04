@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -87,12 +86,6 @@ func buildService(api controllers.ApiV1Controller) *gin.Engine {
 func buildAPIServer(api controllers.ApiV1Controller) *gin.Engine {
 	router := getBaseRouter()
 	// Admin API
-
-	// Serve frontend static files
-	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "/admin/edit")
-	})
 
 	v1 := router.Group("/api/v1")
 	{

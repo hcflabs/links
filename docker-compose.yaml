@@ -48,6 +48,7 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=development
+      - NEXT_PUBLIC_API_URL="localhost:8081"
     depends_on:
       db:
         condition: service_healthy
