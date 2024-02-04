@@ -47,9 +47,6 @@ chrome-user-data
 *.swp
 *.swo
 
-# Links Specific ignore files
-links
-
 # NextJS Funtimes 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
@@ -86,3 +83,6 @@ links
 # typescript
 *.tsbuildinfo
 *next-env.d.ts
+
+#
+*links

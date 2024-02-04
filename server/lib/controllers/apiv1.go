@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type ApiController struct {
+type ApiV1Controller struct {
 	Backend storage.LinksBackend
 }
 
@@ -21,7 +21,7 @@ func init() {
 	log.SetLevel(log.InfoLevel) // NEW
 }
 
-func (controller ApiController) GoToLink(c *gin.Context) {
+func (controller ApiV1Controller) GoToLink(c *gin.Context) {
 	shortUrl := c.Param("shortUrl")
 	targetUrl, permanent, err := controller.Backend.GetTargetLink(shortUrl)
 
@@ -43,7 +43,7 @@ func (controller ApiController) GoToLink(c *gin.Context) {
 	}
 }
 
-func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
+func (controller ApiV1Controller) CreateOrUpdateLink(c *gin.Context) {
 	// TODO Handle force updates, verify etc
 	newlink := fromContext(c)
 
@@ -54,7 +54,7 @@ func (controller ApiController) CreateOrUpdateLink(c *gin.Context) {
 	}
 }
 
-func (controller ApiController) GetLinkMetadata(c *gin.Context) {
+func (controller ApiV1Controller) GetLinkMetadata(c *gin.Context) {
 	req_url := c.Param("shortUrl")
 	linkMetadata, err := controller.Backend.GetLinkMetadata(req_url)
 	if err != nil {
@@ -69,12 +69,12 @@ func (controller ApiController) GetLinkMetadata(c *gin.Context) {
 	}
 }
 
-func (controller ApiController) DeleteLink(c *gin.Context) {
+func (controller ApiV1Controller) DeleteLink(c *gin.Context) {
 	controller.Backend.DeleteLink(c.Param("shortUrl"))
 	c.Status(http.StatusOK)
 }
 
-func (controller ApiController) GetLinksPaginated(c *gin.Context) {
+func (controller ApiV1Controller) GetLinksPaginated(c *gin.Context) {
 	pagesize, err := strconv.Atoi(c.Query("pagesize"))
 	if err != nil {
 		// ... handle error
@@ -95,7 +95,7 @@ func (controller ApiController) GetLinksPaginated(c *gin.Context) {
 	c.JSON(http.StatusOK, pages)
 }
 
-func (controller ApiController) GetOwnerLinksPaginated(c *gin.Context) {
+func (controller ApiV1Controller) GetOwnerLinksPaginated(c *gin.Context) {
 
 	pagesize, err := strconv.Atoi(c.Query("pagesize"))
 	if err != nil {

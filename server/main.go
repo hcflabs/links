@@ -37,17 +37,6 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 		}
 
 		backend = storage.BuildPostgresBackend(config)
-	case "redis":
-		fmt.Printf("Redis Backend loading")
-		config := storage.RedisConfig{
-			Host:     os.Getenv("LINKS_DB_HOST"),
-			User:     os.Getenv("LINKS_DB_USER"),
-			Password: os.Getenv("LINKS_DB_PASSWORD"),
-			Database: os.Getenv("LINKS_DB_DATABASE"),
-			Port:     os.Getenv("LINKS_DB_PORT"),
-		}
-
-		backend = storage.BuildRedisBackend(config)
 	default:
 		fmt.Printf("InMemory Backend loading")
 		backend = storage.InMemoryLinksBackend{
@@ -57,7 +46,7 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 
 	cfg = ServerConfig{
 		Port:           os.Getenv("LINKS_PORT"),
-		AdminBuildPath: os.Getenv("LINKS_ADMIN_PATH"),
+		AdminBuildPath: os.Getenv("LINKS_ADMIN_PORT"),
 	}
 	return
 }
@@ -77,7 +66,43 @@ func initLinks(backend storage.LinksBackend) {
 	util.InsertLink(backend, "holdon", "https://www.youtube.com/watch?v=HKK4KmDlj8U")
 	util.InsertLink(backend, "great", "https://www.youtube.com/watch?v=kSVQtlQtxCs")
 	util.InsertLink(backend, "hcf", "https://haltcatchfire.io")
+}
 
+func getBaseRouter() *gin.Engine {
+	// Set up Server
+	router := gin.Default()
+	router.Use(gin.Recovery())                 // NEW
+	router.Use(middleware.LoggingMiddleware()) // NEW
+	return router
+}
+
+func buildService(api controllers.ApiV1Controller) *gin.Engine {
+	router := getBaseRouter()
+
+	router.GET("/:shortUrl", api.GoToLink)
+
+	return router
+}
+
+func buildAPIServer(api controllers.ApiV1Controller) *gin.Engine {
+	router := getBaseRouter()
+	// Admin API
+
+	// Serve frontend static files
+	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
+	router.GET("/", func(c *gin.Context) {
+		c.Redirect(http.StatusTemporaryRedirect, "/admin/edit")
+	})
+
+	v1 := router.Group("/api/v1")
+	{
+		v1.GET("/links/:shortUrl", api.GetLinkMetadata)
+		v1.POST("/links/:shortUrl", api.CreateOrUpdateLink)
+		v1.DELETE("/links/:shortUrl", api.DeleteLink)
+		v1.GET("/links", api.GetLinksPaginated)
+		v1.GET("/owners/:owner/links", api.GetOwnerLinksPaginated)
+	}
+	return router
 }
 
 func main() {
@@ -97,31 +122,13 @@ func main() {
 
 	initLinks(backend)
 
-	// Set up Server
-	router := gin.Default()
-	router.Use(gin.Recovery())                 // NEW
-	router.Use(middleware.LoggingMiddleware()) // NEW
-
 	// Init
-	api := controllers.ApiController{Backend: backend}
-	// Serve frontend static files
-	// router.Use(static.Serve("/admin", (fmt.Sprintf("%s", cfg.AdminBuildPath),  http.Dir()))
-	router.Static("/admin", cfg.AdminBuildPath)
-	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusTemporaryRedirect, "/admin/edit")
-	})
-	// Primary User Route
-	router.GET("/:shortUrl", api.GoToLink)
+	api := controllers.ApiV1Controller{Backend: backend}
 
-	// Admin API
-	v1 := router.Group("/api/v1")
-	{
-		v1.GET("/links/:shortUrl", api.GetLinkMetadata)
-		v1.POST("/links/:shortUrl", api.CreateOrUpdateLink)
-		v1.DELETE("/links/:shortUrl", api.DeleteLink)
-		v1.GET("/links", api.GetLinksPaginated)
-		v1.GET("/owners/:owner/links", api.GetOwnerLinksPaginated)
-	}
+	service := buildService(api)
+	apiServer := buildAPIServer(api)
 
-	router.Run(fmt.Sprintf(":%s", cfg.Port))
+	go service.Run(fmt.Sprintf(":%s", cfg.Port))
+	apiServer.Run(fmt.Sprintf(":%s", cfg.Port))
+
 }

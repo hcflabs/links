@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 // [END declaration]
 
 // [START go_declaration]
-option go_package = "lib/generated";
+option go_package = "server/lib/generated";
 // [END go_declaration]
 
 

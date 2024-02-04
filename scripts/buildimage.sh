@@ -1,3 +1,3 @@
 #!/bin/bash
 set -v
-docker build -t links . 
+docker build -t server/links .

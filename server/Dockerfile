@@ -8,14 +8,14 @@ RUN apk add --no-cache libc6-compat
 WORKDIR /frontend
 
 # Install dependencies based on the preferred package manager
-COPY frontend/package.json frontend/package-lock.json* ./
+COPY ../frontend/package.json frontend/package-lock.json* ./
 RUN npm ci
 
 # Rebuild the source code only when needed
 FROM npmbase AS frontendbuilder
 WORKDIR /frontend
 COPY --from=deps /frontend/node_modules ./node_modules
-COPY frontend/ ./
+COPY ../frontend ./
 
 ENV NEXT_TELEMETRY_DISABLED 1
 
@@ -24,7 +24,7 @@ RUN npm run build
 # Build Server Deps
 FROM golang:1.21.3 AS SERVERBUILD
 WORKDIR /app
-COPY . .
+COPY .. .
 RUN go mod download
 RUN CGO_ENABLED=0 GOOS=linux go build -o /links
 
