@@ -27,8 +27,23 @@
 //     </main>
 //   );
 // }
-export default function MyComponent() {
-  return <h1>Hello</h1>;
+
+async function getLinkMetadata(link: string) {
+  const res = await fetch('http://localhost:8081/api/v1/links' + link)
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+
+  if (!res.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error('Failed to fetch data')
+  }
+
+  return res.json()
+}
+export default async function MyComponent() {
+  const data = await getLinkMetadata("hcf")
+
+  return <h1>{data}</h1>;
 }
 
 // export default function NewLinkPage() {
