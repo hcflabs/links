@@ -17,6 +17,7 @@ message NewLink {
   bool permanent = 3;
   string owner = 4;
   bool protected = 5;
+  bool private = 6;
 }
 
 message Link {
@@ -27,8 +28,9 @@ message Link {
     message LinksMetadata {
       string owner = 1;
       bool protected = 2;
-      google.protobuf.Timestamp created = 3;
-      google.protobuf.Timestamp modified = 4;
+      bool private = 3;
+      google.protobuf.Timestamp created = 4;
+      google.protobuf.Timestamp modified = 5;
     }
   
     LinksMetadata metadata = 4;

@@ -20,12 +20,12 @@ export default async function Home() {
   // const [isLoading, setLoading] = useState(true);
     const data = await getData()
     console.log(JSON.stringify(data, null, 2))
-    const links: LinksMetadata[] = JSON.parse(data)
+    const links: Link[] = JSON.parse(data)
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p>{links.map((link) => {
+        <p>{links.map((link : LinksMetadata) => {
             return (
                 <div key={link}>
                     <p>{link}</p>

@@ -20,6 +20,9 @@ export class NewLink extends jspb.Message {
   getProtected(): boolean;
   setProtected(value: boolean): void;
 
+  getPrivate(): boolean;
+  setPrivate(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): NewLink.AsObject;
   static toObject(includeInstance: boolean, msg: NewLink): NewLink.AsObject;
@@ -37,6 +40,7 @@ export namespace NewLink {
     permanent: boolean,
     owner: string,
     pb_protected: boolean,
+    pb_private: boolean,
   }
 }
 
@@ -80,6 +84,9 @@ export namespace Link {
     getProtected(): boolean;
     setProtected(value: boolean): void;
 
+    getPrivate(): boolean;
+    setPrivate(value: boolean): void;
+
     hasCreated(): boolean;
     clearCreated(): void;
     getCreated(): google_protobuf_timestamp_pb.Timestamp | undefined;
@@ -104,6 +111,7 @@ export namespace Link {
     export type AsObject = {
       owner: string,
       pb_protected: boolean,
+      pb_private: boolean,
       created?: google_protobuf_timestamp_pb.Timestamp.AsObject,
       modified?: google_protobuf_timestamp_pb.Timestamp.AsObject,
     }
