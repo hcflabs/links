@@ -19,8 +19,8 @@ import (
 )
 
 type ServerConfig struct {
-	Port           string
-	AdminBuildPath string
+	LinkAppPort   string
+	ApiServerPort string
 }
 
 func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
@@ -44,8 +44,8 @@ func loadConfig() (cfg ServerConfig, backend storage.LinksBackend) {
 	}
 
 	cfg = ServerConfig{
-		Port:           os.Getenv("LINKS_PORT"),
-		AdminBuildPath: os.Getenv("LINKS_ADMIN_PORT"),
+		LinkAppPort:   os.Getenv("LINKS_PORT"),
+		ApiServerPort: os.Getenv("LINKS_ADMIN_PORT"),
 	}
 	return
 }
@@ -70,7 +70,7 @@ func initLinks(backend storage.LinksBackend) {
 func getBaseRouter() *gin.Engine {
 	// Set up Server
 	router := gin.Default()
-	router.Use(gin.Recovery())                 // NEW
+
 	router.Use(middleware.LoggingMiddleware()) // NEW
 	return router
 }
@@ -121,7 +121,9 @@ func main() {
 	service := buildService(api)
 	apiServer := buildAPIServer(api)
 
-	go service.Run(fmt.Sprintf(":%s", cfg.Port))
-	apiServer.Run(fmt.Sprintf(":%s", cfg.Port))
+	log.Info("Starting Links App on port {}", cfg.LinkAppPort)
+	go service.Run(fmt.Sprintf(":%s", cfg.LinkAppPort))
+	log.Info("Starting Admin/Api Service on port {}", cfg.ApiServerPort)
+	apiServer.Run(fmt.Sprintf(":%s", cfg.ApiServerPort))
 
 }

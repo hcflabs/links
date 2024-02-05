@@ -63,7 +63,7 @@ func (controller ApiV1Controller) GetLinkMetadata(c *gin.Context) {
 	}
 
 	if linkMetadata != nil {
-		c.JSON(http.StatusCreated, *linkMetadata)
+		c.JSON(http.StatusOK, *linkMetadata)
 	} else {
 		c.Status(http.StatusNotFound)
 	}

@@ -35,7 +35,7 @@ func BuildPostgresBackend(localConfig PostgresConfig) PostgresLinksBackend {
 	// fmt.Printf("%+v\n", config)
 	// dsn := "host=localhost user=postgres password=postgres dbname=hcflinks port=5432 sslmode=disable TimeZone=Asia/Shanghai"
 
-	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.Host, config.User, config.Password, config.Database, config.Port)
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.Host, config.User, config.Password, config.Database, config.LinkAppPort)
 
 	// "postgres://username:password@localhost:5432/database_name"
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", localConfig.User, localConfig.Password, localConfig.Host, localConfig.Port, localConfig.Database)
@@ -72,9 +72,9 @@ func BuildPostgresBackend(localConfig PostgresConfig) PostgresLinksBackend {
 	// if err != nil {
 	// 	fmt.Println(err)
 	// }
-	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.Host, config.User, config.Password, config.Database, config.Port)
+	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", config.Host, config.User, config.Password, config.Database, config.LinkAppPort)
 
-	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",config.User,config.Password,config.Host, config.Port, config.Database )
+	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",config.User,config.Password,config.Host, config.LinkAppPort, config.Database )
 	// db, _ := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	return PostgresLinksBackend{DB: db}
