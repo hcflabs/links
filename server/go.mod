@@ -1,7 +1,7 @@
 module github.com/hcflabs/links
 
 go 1.21.6
-toolchain go1.22.0
+toolchain go1.22.1
 
 require (
 	github.com/bobg/go-generics/v3 v3.4.0
@@ -10,7 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.5.2
 	github.com/redis/go-redis/v9 v9.4.0
 	github.com/sirupsen/logrus v1.9.3
-	google.golang.org/protobuf v1.32.0
+	google.golang.org/protobuf v1.33.0
 )
 
 require (
